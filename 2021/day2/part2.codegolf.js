@@ -1,0 +1,1 @@
+let y=x=a=0;for(k of require("fs").readFileSync(0,"utf8").split`\n`){let[d,n]=k.split` `,m=Number(n);if(d[0]=="f"){x+=m;y+=m*a}if(d<"e")a+=m;if(d>"u")a-=m}console.log(y*x)
