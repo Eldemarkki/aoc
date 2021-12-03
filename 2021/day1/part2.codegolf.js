@@ -1,0 +1,1 @@
+console.log(require("fs").readFileSync(0,"utf8").split`\n`.reduce((p,_,i,d)=>p+=d[i+3]>d[i],3))
