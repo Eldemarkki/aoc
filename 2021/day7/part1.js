@@ -2,11 +2,9 @@ const { readLines } = require("../../utils/input");
 
 const data = readLines()[0].split(",").map(Number);
 
-const fuels = data.map(d => 0);
+const fuels = new Array(data.length).fill(0);
 
-const calcFuel = (a, b) => {
-  return Math.abs(a - b)
-}
+const calcFuel = (a, b) => Math.abs(a - b);
 
 for (let i = 0; i < data.length; i++) {
   let fuel = 0;

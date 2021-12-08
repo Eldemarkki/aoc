@@ -2,15 +2,12 @@ const { readLines } = require("../../utils/input");
 
 const data = readLines()[0].split(",").map(Number);
 
-const fuels = data.map(d => 0);
+const fuels = new Array(data.length).fill(0);
 
 const calcFuel = (a, b) => {
-  let fuel = 0;
-  const smaller = Math.min(a, b);
-  for (let i = smaller; i < Math.max(a, b); i++) {
-    fuel += i - smaller + 1
-  }
-  return fuel
+  const loopCount = Math.abs(a - b);
+  const fuel = loopCount * (loopCount + 1) / 2;
+  return fuel;
 }
 
 for (let i = 0; i < data.length; i++) {
