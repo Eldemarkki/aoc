@@ -35,10 +35,10 @@ const findBasinSize = point => {
       const element = search[i];
       visited[element] = true;
       count++;
-      search = search.filter(v => JSON.stringify(v) !== JSON.stringify(element));
+      search = search.filter(v => v[0] !== element[0] || v[1] !== element[1]);
       offsets.forEach(offset => {
         const p = [element[0] + offset[0], element[1] + offset[1]]
-        if (!isOutside(p[0], p[1]) && search.indexOf(p) === -1 && !visited[p] && getPoint(p[0], p[1]) !== 9) {
+        if (!isOutside(p[0], p[1]) && !visited[p] && getPoint(p[0], p[1]) !== 9) {
           search.push(p)
         }
       });
