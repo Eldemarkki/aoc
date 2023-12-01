@@ -4,6 +4,7 @@ import { join, dirname } from "path";
 /**
  * 
  * @param {string} [file] 
+ * @returns {string[]}
  */
 export const readLines = (file) => {
   const inputPath = join(dirname(process.argv[1]), file || "input.txt");
@@ -13,6 +14,7 @@ export const readLines = (file) => {
 /**
  * 
  * @param {string} [file]
+ * @returns {string[]}
  */
 export const readLinesDontTrim = (file) => {
   const inputPath = join(dirname(process.argv[1]), file || "input.txt");
@@ -23,6 +25,7 @@ export const readLinesDontTrim = (file) => {
  * 
  * @param {string} file
  * @param {number} radix
+ * @returns {number[]}
  */
 export const readNumberList = (file, radix) => {
   return readLines(file).map(line => parseInt(line, radix || 10));
