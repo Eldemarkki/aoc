@@ -1,5 +1,0 @@
-seeds: 52 2
-
-fertilizer-to-water map:
-49 53 8
-0 11 42
