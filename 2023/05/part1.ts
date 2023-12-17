@@ -32,16 +32,11 @@ const processSeed = (seed: number) => {
     const s = map.data.find(
       (m) => m.source <= value && value < m.source + m.size
     );
-    console.log(s);
     if (s) {
       const offset = value - s.source;
       const newValue = s.destination + offset;
-      console.log(map.destination, value);
       value = newValue;
-    } else {
-      console.log("undef");
     }
-    console.log("-------");
   }
   return value;
 };

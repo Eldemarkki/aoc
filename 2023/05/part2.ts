@@ -1,6 +1,6 @@
 import { readLines } from "../../utils/input";
 
-const lines = readLines("demo2.txt");
+const lines = readLines("input.txt");
 
 const [seedSection, ...mapSections] = lines.join("\n").split("\n\n");
 
@@ -8,7 +8,7 @@ const seeds = seedSection.split(": ")[1].split(" ").map(Number);
 
 const maps = mapSections.map((m) => {
   const [info, ...data] = m.split("\n");
-  const [source, _, destination] = info.split(" ")[0].split("-");
+  const [destination, _, source] = info.split(" ")[0].split("-");
   const pdata = data.map((row) => {
     const s = row.split(" ").map(Number);
     return {
@@ -26,145 +26,19 @@ const maps = mapSections.map((m) => {
   };
 });
 
-const removeRange = (
-  range: [number, number],
-  remove: [number, number]
-): [number, number][] | undefined => {
-  if (range[0] > range[1]) {
-    throw new Error("Range is invalid");
+const processSeed = (seed: number) => {
+  let value = seed;
+  for (const map of maps) {
+    const s = map.data.find(
+      (m) => m.source <= value && value < m.source + m.size
+    );
+    if (s) {
+      const offset = value - s.source;
+      const newValue = s.destination + offset;
+      value = newValue;
+    }
   }
-
-  if (remove[0] > remove[1]) {
-    throw new Error("Range to remove is invalid");
-  }
-
-  if (remove[1] < range[0]) {
-    return undefined;
-  }
-
-  if (range[1] < remove[0]) {
-    return undefined;
-  }
-
-  if (range[0] < remove[0] && remove[1] < range[1]) {
-    //   AAAAAAAA
-    //      DD
-    return [
-      [range[0], remove[0] - 1],
-      [remove[1] + 1, range[1]],
-    ];
-  } else if (range[0] === remove[0] && remove[1] < range[1]) {
-    //   AAAAAAAA
-    //   DDDD
-    return [[remove[1] + 1, range[1]]];
-  } else if (range[0] < remove[0] && remove[1] === range[1]) {
-    //   AAAAAAAA
-    //      DDDDD
-    return [[range[0], remove[0] - 1]];
-  } else if (remove[0] < range[0] && remove[1] < range[1]) {
-    //   AAAAAAAA
-    // DDDDD
-    return [[remove[1] + 1, range[1]]];
-  } else if (range[0] < remove[0] && range[1] < remove[1]) {
-    //   AAAAAAAA
-    //        DDDDD
-    return [[range[0], remove[0] - 1]];
-  } else {
-    //   AAAAAAAA
-    // DDDDDDDDDDDD
-    return [];
-  }
-};
-
-const addRange = (
-  range: [number, number],
-  add: [number, number]
-): [number, number][] => {
-  if (range[0] > range[1]) {
-    throw new Error("Range is invalid");
-  }
-
-  if (add[0] > add[1]) {
-    throw new Error("Range to add is invalid");
-  }
-
-  if (add[1] < range[0]) {
-    //         AAAAAAA
-    // AAAAAA
-    return [add, range];
-  }
-
-  if (range[1] < add[0]) {
-    // AAAAAA
-    //         AAAAAAA
-    return [range, add];
-  }
-
-  if (range[0] <= add[0] && add[1] <= range[1]) {
-    //   AAAAAAAA
-    //      AA
-    return [range];
-  } else if (add[0] < range[0] && add[1] < range[1]) {
-    //   AAAAAAAA
-    // AAAAA
-    return [[add[0], range[1]]];
-  } else if (range[0] < add[0] && range[1] < add[1]) {
-    //   AAAAAAAA
-    //        DDDDD
-    return [[range[0], add[1]]];
-  } else {
-    //   AAAAAAAA
-    // AAAAAAAAAAAA
-    return [add];
-  }
-};
-
-const applyMap = (
-  range: [number, number],
-  map: {
-    destination: number;
-    source: number;
-    size: number;
-  }
-) => {
-  const size = map.size;
-  let newRanges: [number, number][] | undefined = undefined;
-
-  if (map.source <= range[0] && range[0] < map.source + map.size) {
-    newRanges = removeRange(range, [map.source, map.source + size - 1]);
-  } else {
-    return undefined;
-  }
-
-  if (!newRanges) return [range];
-
-  let withAdditions: [number, number][] = [];
-
-  const dest = map.destination + (range[0] - map.source);
-  const howManyFit = map.destination + map.size - dest;
-  const howManyExist = range[1] - range[0] + 1;
-  const destinationRange = [
-    dest,
-    dest + Math.min(howManyFit, howManyExist) - 1,
-  ] satisfies [number, number];
-
-  return destinationRange;
-  // if (newRanges.length === 0) {
-  //   withAdditions = [destinationRange];
-  // } else {
-  //   withAdditions = newRanges.flatMap((r) => {
-  //     return addRange(r, destinationRange);
-  //   });
-  // }
-
-  // newRanges.push(...withAdditions);
-
-  // const uniqueRanges = newRanges.filter(
-  //   (n, i, data) => data.findIndex((r) => r[0] === n[0] && r[1] === n[1]) === i
-  // );
-  // uniqueRanges.sort((a, b) => a[0] - b[0]);
-
-  // return uniqueRanges;
+  return value;
 };
 
 let ranges: [number, number][] = [];
@@ -172,44 +46,18 @@ for (let i = 0; i < seeds.length; i += 2) {
   ranges.push([seeds[i], seeds[i] + seeds[i + 1] - 1]);
 }
 
-const simulate = (ranges: [number, number][]) => {
-  let newRangeConstructed: [number, number][] = [...ranges];
-
-  for (const phase of maps) {
-    let seedRangeConstructed: [number, number][] = [];
-    console.log("starting with", newRangeConstructed);
-    for (const seedRange of newRangeConstructed) {
-      for (const map of phase.data) {
-        const a = applyMap(seedRange, map);
-
-        if (a) {
-          seedRangeConstructed.push(...a);
-        } else {
-          seedRangeConstructed.push();
-        }
-      }
+let smallest = Number.POSITIVE_INFINITY;
+for (let i = 0; i < ranges.length; i++) {
+  for (let j = ranges[i][0]; j < ranges[i][1]; j++) {
+    const l = processSeed(j);
+    if (l < smallest) {
+      smallest = l;
     }
-
-    newRangeConstructed = [
-      ...(seedRangeConstructed.length
-        ? seedRangeConstructed
-        : newRangeConstructed),
-    ].filter(
-      (n, i, data) =>
-        data.findIndex((r) => r[0] === n[0] && r[1] === n[1]) === i
-    );
-
-    console.log("ended with", newRangeConstructed);
-    console.log("phase " + phase.source + "-to-" + phase.destination + " done");
-    console.log("-------------");
+    if ((ranges[i][1] - j) % 1000000 === 0) {
+      console.log(ranges[i][1] - j);
+    }
   }
+  console.log(`Range done: ${i + 1}/${ranges.length}`);
+}
 
-  const uniqueRanges = newRangeConstructed.filter(
-    (n, i, data) => data.findIndex((r) => r[0] === n[0] && r[1] === n[1]) === i
-  );
-  uniqueRanges.sort((a, b) => a[0] - b[0]);
-  return uniqueRanges;
-};
-
-const newRanges = simulate(ranges);
-console.log(newRanges);
+console.log(smallest);
